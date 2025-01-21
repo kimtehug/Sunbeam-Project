@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pending Tasks</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .edit-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .save-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .cancel-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Pending Tasks</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Staff Name</th>
+                <th>Student Name</th>
+                <th>Group Name</th>
+                <th>Subject Name</th>
+                <th>Theory</th>
+                <th>Lab</th>
+                <th>IA1</th>
+                <th>IA2</th>
+                <th>From Date</th>
+                <th>Till Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>test</td>
+                <td>s1</td>
+                <td>D1</td>
+                <td>Java</td>
+                <td><span style="color: red;">&#8226;</span></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>May 02, 2024</td>
+                <td>May 02, 2024</td>
+                <td><button class="edit-btn">Edit</button></td>
+            </tr>
+            <tr>
+                <td>test</td>
+                <td>s3</td>
+                <td>D1</td>
+                <td>Java</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>May 02, 2024</td>
+                <td>May 02, 2024</td>
+                <td><button class="edit-btn">Edit</button></td>
+            </tr>
+            <tr>
+                <td>test</td>
+                <td>s2</td>
+                <td>D1</td>
+                <td>Java</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>Jan 01, 1970</td>
+                <td>Jan 01, 1970</td>
+                <td><button class="edit-btn">Edit</button></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.edit-btn').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    const row = button.closest('tr');
+                    const cells = row.querySelectorAll('td');
+                    const originalValues = [];
+                    
+                    cells.forEach((cell, index) => {
+                        if (index < cells.length - 1) {  // Ignore the last cell (actions)
+                            originalValues.push(cell.innerHTML);
+                            cell.setAttribute('contenteditable', 'true');
+                            cell.style.backgroundColor = '#f9f9f9';
+                        }
+                    });
+
+                    button.style.display = 'none';
+                    
+                    const saveButton = document.createElement('button');
+                    saveButton.innerText = 'Save';
+                    saveButton.classList.add('save-btn');
+                    saveButton.addEventListener('click', function () {
+                        cells.forEach((cell) => {
+                            cell.setAttribute('contenteditable', 'false');
+                            cell.style.backgroundColor = '';
+                        });
+                        button.style.display = '';
+                        saveButton.remove();
+                        cancelButton.remove();
+                    });
+                    cells[cells.length - 1].appendChild(saveButton);
+
+                    const cancelButton = document.createElement('button');
+                    cancelButton.innerText = 'Cancel';
+                    cancelButton.classList.add('cancel-btn');
+                    cancelButton.addEventListener('click', function () {
+                        cells.forEach((cell, index) => {
+                            cell.setAttribute('contenteditable', 'false');
+                            cell.style.backgroundColor = '';
+                            if (index < originalValues.length) {
+                                cell.innerHTML = originalValues[index];
+                            }
+                        });
+                        button.style.display = '';
+                        saveButton.remove();
+                        cancelButton.remove();
+                    });
+                    cells[cells.length - 1].appendChild(cancelButton);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

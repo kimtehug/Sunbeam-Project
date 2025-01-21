@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Subjects</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap");
+      .iframe1 {
+        font-family: "Poppins", sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        height: 100vh;
+        margin: 0;
+        background-color: #f5f5f5;
+        padding-top: 10px;
+      }
+      .showSubjects {
+        text-align: center;
+        font-size: 35px;
+        font-weight: 500;
+        margin-bottom: 20px;
+        color: #333;
+        margin-top: 5px;
+        margin-bottom: 10px;
+      }
+      .input-box {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 20px auto;
+        border: 2px solid lightgray;
+        border-radius: 10px;
+        height: 8vh;
+        width: 500px;
+        background-color: #fff;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 10px 20px;
+      }
+      label {
+        font-size: 20px;
+        font-weight: 500;
+        color: #333;
+      }
+      select {
+        padding: 10px;
+        flex: 1;
+        border: 1px solid lightgray;
+        border-radius: 5px;
+        font-size: 16px;
+        font-family: "Poppins", sans-serif;
+        margin-right: 10px;
+      }
+      .btn {
+        background-color: blue;
+        color: white;
+        height: 50px;
+        width: 150px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        font-family: "Poppins", sans-serif;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+      .btn:hover {
+        background-color: darkblue;
+      }
+
+      #inputfield {
+        height: 45px;
+        width: 230px;
+        font-size: 17px;
+        border: 1px solid lightgray;
+        border-radius: 8px;
+        padding-left: 10px;
+      }
+
+      .output {
+        margin-top: 20px;
+        padding: 20px;
+        width: 400px;
+        background-color: #fff;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+      }
+      .subject-item {
+        margin-top: 10px;
+        padding: 10px;
+        border: 1px solid lightgray;
+        border-radius: 5px;
+        background-color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark" data-bs-theme="dark">
+      <a class="navbar-brand" href="home-page-ap.html">Marks-Entry-App</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="admin_home.html">Home <span class="sr-only">(current)</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">options</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              options
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="courses.html">courses</a>
+              <a class="dropdown-item" href="grups.html">groups</a>
+              <a class="dropdown-item" href="admin-student-group.html">student management</a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="admin-staff-management.html">staff management</a>
+            </div>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+          </li>
+        </ul>
+        <form class="form-inline my-2 my-lg-0">
+          <a href="staff/login.html" id="logout-icon" class="nav-item" title="Logout">
+            <img src="image.png" alt="Logout Icon" style="height: 8vh; margin-right: 10vw;">
+        </a>
+         </form>
+         <div class="user" style="color: white;">coordinator coco</div>
+      </div>
+    </nav>
+    <div class="iframe1">
+      <p class="showSubjects">Show All Subjects</p>
+      <div class="input-box">
+        <label for="courseSelect">Select Course:</label>
+        <select id="courseSelect">
+          <!-- Options will be dynamically populated -->
+        </select>
+        <button class="btn" id="btnid" onclick="showSubjects()">
+          Show Subjects
+        </button>
+      </div>
+
+      <div class="input-box">
+        <input type="text" id="inputfield" />
+        <button class="btn" onclick="addSubject()">Add Subjects</button>
+      </div>
+      <div class="output" id="subjectList">
+        <p class="showSubjects">All Subjects</p>
+      </div>
+    </div>
+    <script>
+      async function fetchSubjects(courseId) {
+        try {
+          const url = `http://localhost:3000/subjects/show-subject/${courseId}`;
+          console.log(`Fetching subjects from URL: ${url}`); // Log the URL being fetched
+          const response = await fetch(url);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const data = await response.json();
+          console.log("API response:", data); // Log the entire response for debugging
+
+          // Assuming data structure contains subjects under a key, e.g., data.rows
+          const subjects = data.data || []; // Adjust this based on the actual response structure
+
+          console.log("Subjects:", subjects); // Log subjects to verify correct data
+          updateSubjectList(subjects);
+        } catch (error) {
+          console.error("Error fetching subjects:", error);
+        }
+      }
+
+      function updateSubjectList(subjects) {
+        const subjectList = document.getElementById("subjectList");
+        subjectList.innerHTML = '<p class="showSubjects">All Subjects</p>'; // Clear existing subjects
+        if (!Array.isArray(subjects)) {
+          console.error("Subjects data is not an array:", subjects);
+          return;
+        }
+        subjects.forEach((subject) => {
+          const subjectContainer = document.createElement("div");
+          subjectContainer.classList.add("subject-item");
+          const paragraph = document.createElement("p");
+          paragraph.textContent = subject.subject_name;
+          subjectContainer.appendChild(paragraph);
+          subjectList.appendChild(subjectContainer);
+        });
+      }
+
+      function showSubjects() {
+        const courseSelect = document.getElementById("courseSelect");
+        const selectedCourse = courseSelect.value;
+        console.log(`Selected course ID: ${selectedCourse}`);
+        fetchSubjects(selectedCourse);
+      }
+
+      async function addSubject() {
+        const subjectName = document.getElementById("inputfield").value;
+        const courseSelect = document.getElementById("courseSelect");
+        const courseId = courseSelect.value;
+
+        if (!subjectName || !courseId) {
+          alert("Please select a course and enter a subject name.");
+          return;
+        }
+
+        try {
+          const response = await fetch(
+            "http://localhost:3000/subjects/add-subject",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                subject_name: subjectName,
+                course_id: courseId,
+              }),
+            }
+          );
+          if (response.ok) {
+            alert("Subject added successfully!");
+            showSubjects(); // Refresh the subject list
+          } else {
+            const errorData = await response.json();
+            alert(`Failed to add subject: ${errorData.message}`);
+          }
+        } catch (error) {
+          console.error("Error adding subject:", error);
+          alert("An error occurred while adding the subject.");
+        }
+      }
+
+      async function fetchCourses() {
+        try {
+          const response = await fetch("http://localhost:3000/courses/show-courses");
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const data = await response.json();
+          console.log('Fetched courses:', data);
+          if (data.error) {
+            alert('Error fetching courses');
+          } else {
+            const courses = data.data || []; // Adjust based on the actual response structure
+            const courseSelect = document.getElementById("courseSelect");
+            courses.forEach((course) => {
+              const option = document.createElement("option");
+              option.value = course.course_id;
+              option.textContent = course.course_name;
+              courseSelect.appendChild(option);
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching courses:", error);
+        }
+      }
+
+      // Initial load
+      fetchCourses();
+    </script>
+  </body>
+</html>

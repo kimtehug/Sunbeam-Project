@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Marks</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.3/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js"></script>
+    <style>
+        body {
+            background-color: rgba(247, 246, 246, 0.768);
+            padding: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .form {
+            background-color: #ffffff;
+            width: 60%;
+            margin-bottom: 30px;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .btn {
+            width: 25%;
+            background-color: #53a52a;
+        }
+        .container {
+            width: 70%;
+            border-radius: 2px black;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .form-control {
+            width: 100%;
+            color: lightslategrey;
+        }
+        .marks-container {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            width: 100%;
+        }
+        .marks-table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        .marks-table th, .marks-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+        }
+        .marks-table th {
+            background-color: #f2f2f2;
+            text-align: center;
+        }
+        .marks-table td {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card shadow-sm form">
+            <div class="card-body">
+                <h3 class="card-title text-center">Add Marks To Subject</h3>
+                <form id="marks-form">
+                    <div class="form-group">
+                        <label for="subject"><h5>Select a subject</h5></label>
+                        <select class="form-control" id="subject"></select>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="theory"><h5>Theory Marks</h5></label>
+                                <input type="number" class="form-control" id="theory" placeholder="Enter Theory Marks">
+                            </div>
+                            <div class="form-group">
+                                <label for="ia1"><h5>IA1 Marks</h5></label>
+                                <input type="number" class="form-control" id="ia1" placeholder="Enter IA1 Marks">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="lab"><h5>Lab Marks</h5></label>
+                                <input type="number" class="form-control" id="lab" placeholder="Enter Lab Marks">
+                            </div>
+                            <div class="form-group">
+                                <label for="ia2"><h5>IA2 Marks</h5></label>
+                                <input type="number" class="form-control" id="ia2" placeholder="Enter IA2 Marks">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary" id="save-btn">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- New container to display marks -->
+        <div class="marks-container">
+            <h3 class="text-center">Evaluation Marks</h3>
+            <table class="marks-table" id="marks-table">
+                <thead>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Theory Marks</th>
+                        <th>Lab Marks</th>
+                        <th>IA1 Marks</th>
+                        <th>IA2 Marks</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const saveBtn = document.getElementById('save-btn');
+        const marksForm = document.getElementById('marks-form');
+
+        async function fetchSubjects() {
+            try {
+                const response = await fetch('http://localhost:3000/add-marks/get-subjects');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                console.log('Subjects:', data.rows);
+                return data.rows;
+            } catch (error) {
+                console.error('Error fetching subjects:', error);
+                return [];
+            }
+        }
+
+        async function fetchEvaluations() {
+            try {
+                const response = await fetch('http://localhost:3000/add-marks/get-evaluations');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                console.log('Evaluations:', data.rows);
+                return data.rows;
+            } catch (error) {
+                console.error('Error fetching evaluations:', error);
+                return [];
+            }
+        }
+
+        function displayEvaluations(evaluations, subjects) {
+            const marksTableBody = document.getElementById('marks-table').querySelector('tbody');
+            marksTableBody.innerHTML = '';
+            evaluations.forEach(evaluation => {
+                const subject = subjects.find(sub => sub.subject_id === evaluation.subject_id);
+                const subjectName = subject ? subject.subject_name : 'Unknown Subject';
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${subjectName}</td>
+                    <td>${evaluation.theory}</td>
+                    <td>${evaluation.lab}</td>
+                    <td>${evaluation.IA1}</td>
+                    <td>${evaluation.IA2}</td>
+                `;
+                marksTableBody.appendChild(row);
+            });
+        }
+
+        fetchSubjects().then(subjects => {
+            const subjectSelect = document.getElementById('subject');
+            subjects.forEach(subject => {
+                const option = document.createElement('option');
+                option.textContent = subject.subject_name;
+                option.value = subject.subject_id;
+                subjectSelect.appendChild(option);
+            });
+
+            fetchEvaluations().then(evaluations => displayEvaluations(evaluations, subjects));
+        });
+
+        marksForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const subject = document.getElementById('subject').value;
+            const theory = document.getElementById('theory').value;
+            const lab = document.getElementById('lab').value;
+            const ia1 = document.getElementById('ia1').value;
+            const ia2 = document.getElementById('ia2').value;
+
+            const response = await fetch('http://localhost:3000/add-marks/add-evaluation', {
+                method: 'POST',
+                headers: {  
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ subject_id: subject, theory, lab, ia1, ia2 })
+            });
+
+            if (response.ok) {
+                console.log('Evaluation saved successfully');
+                alert('Evaluation saved successfully');
+                const evaluations = await fetchEvaluations();
+                const subjects = await fetchSubjects();
+                displayEvaluations(evaluations, subjects);
+            } else {
+                console.error('Error saving evaluation');
+            }
+        });
+    </script>
+</body>
+</html>

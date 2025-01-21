@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Staff Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #fff;
+            padding: 40px;
+            margin: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 800px;
+            text-align: center;
+        }
+        h1, h2 {
+            margin: 0 0 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="email"], select, button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 12px;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Update Staff Details</h2>
+        <form id="updateStaffForm">
+            <div class="form-group">
+                <label for="email">Email address:</label>
+                <input type="email" id="email" name="email" placeholder="Enter email" required>
+            </div>
+            <div class="form-group">
+                <label for="course">Select Course:</label>
+                <select id="course" name="course" required>
+                    <option value="" disabled selected>Select Course</option>
+                    <!-- Options will be dynamically generated here -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="role">Select Role:</label>
+                <select id="role" name="role" required>
+                    <option value="staff">Staff</option>
+                    <option value="coordinator">Coordinator</option>
+                </select>
+            </div>
+            <button type="submit">Update</button>
+        </form>
+    </div>
+
+    <script>
+        async function fetchCourses() {
+            try {
+                const response = await fetch('http://localhost:3000/courses/show-courses');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                console.log(data);
+                const actualData = data.data
+                console.log('object :>> ', actualData);
+
+                const courseSelect = document.getElementById('course');
+                actualData.forEach(course => {
+                    const option = document.createElement('option');
+                    option.value = course.course_name;
+                    option.textContent = course.course_name;
+                    courseSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error fetching courses:', error);
+            }
+        }
+
+        function getQueryParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        async function fetchStaffDetails(staffId) {
+            try {
+                const response = await fetch(`http://localhost:3000/all-staffs/staff/${staffId}`);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                const staff = data.staff;
+                document.getElementById('email').value = staff.email;
+                document.getElementById('course').value = staff.course_name;
+                document.getElementById('role').value = staff.role;
+            } catch (error) {
+                console.error('Error fetching staff details:', error);
+            }
+        }
+
+        async function updateStaffDetails(event) {
+            event.preventDefault();
+            const staffId = getQueryParameter('staffId');
+            const email = document.getElementById('email').value;
+            const course = document.getElementById('course').value;
+            const role = document.getElementById('role').value;
+
+            try {
+                const response = await fetch(`http://localhost:3000/all-staffs/staff/${staffId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, course_name: course, role }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                alert('Staff details updated successfully');
+            } catch (error) {
+                console.error('Error updating staff details:', error);
+                alert('Error updating staff details');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchCourses();
+            const staffId = getQueryParameter('staffId');
+            if (staffId) {
+                fetchStaffDetails(staffId);
+            }
+            document.getElementById('updateStaffForm').addEventListener('submit', updateStaffDetails);
+        });
+    </script>
+</body>
+</html>

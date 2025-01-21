@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Staffs</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #fff;
+            padding: 40px;
+            margin: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 800px;
+            text-align: center;
+        }
+        h1, h2 {
+            margin: 0 0 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 8px 12px;
+            font-size: 14px;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>All Staffs</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Employee ID</th>
+                    <th>Staff Name</th>
+                    <th>Email</th>
+                    <th>Course Name</th>
+                    <th>Role</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="staffTable">
+                <!-- Rows will be dynamically generated here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        async function fetchStaffData() {
+            try {
+                const response = await fetch('http://localhost:3000/all-staffs/all-staffs');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                console.log('Fetched staff data:', data);
+                data.staff.forEach(addStaffMember);
+            } catch (error) {
+                console.error('Error fetching staff data:', error);
+            }
+        }
+
+        function addStaffMember(staff) {
+            const table = document.getElementById('staffTable');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${staff.staff_id}</td>
+                <td>${staff.staff_name}</td>
+                <td>${staff.email}</td>
+                <td>${staff.course_name}</td>
+                <td>${staff.role}</td>
+                <td><button onclick="redirectToUpdate(${staff.staff_id})">Update</button></td>
+            `;
+            table.appendChild(row);
+        }
+
+        function redirectToUpdate(staffId) {
+            window.location.href = `studentdetail.html?staffId=${staffId}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchStaffData);
+    </script>
+</body>
+</html>

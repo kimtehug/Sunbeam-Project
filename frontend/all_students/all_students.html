@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Students</title>
+    
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .add-course-btn {
+            padding: 10px 20px;
+            border: none;
+            background-color:green;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .add-course-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .course-select {
+            width: 150px;
+            border-radius: 5px;
+            border: 1px solid grey;
+            padding: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+        }
+
+        .form-group select {
+            padding: 10px;
+            width: 200px;
+            margin-bottom: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-right: 20px;
+        }
+
+        .dashboard-content {
+            width: 80%;
+            margin: 20px auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 16px;
+        }
+
+        .table thead {
+            background: #007bff;
+            color: #fff;
+        }
+
+        .table th, .table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        .table tbody tr:hover {
+            background: #f1f1f1;
+        }
+
+        .Coursesbox {
+            background-color: #fff;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .Coursesbox .form-group select {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        @media (max-width: 600px) {
+            .dashboard-content {
+                width: 100%;
+                padding: 10px;
+            }
+
+            .table thead {
+                display: none;
+            }
+
+            .table, .table tbody, .table tr, .table td {
+                display: block;
+                width: 100%;
+            }
+
+            .table tr {
+                margin-bottom: 15px;
+            }
+
+            .table td {
+                text-align: right;
+                padding-left: 50%;
+                position: relative;
+            }
+
+            .table td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 0;
+                width: 50%;
+                padding-left: 10px;
+                font-weight: bold;
+                text-align: left;
+            }
+        }  
+    </style>
+</head>
+<body>
+    <div class="dashboard-content Main_window d-flex align-items-center px-3 pt-4" style="flex-direction: column;">
+        <div class="pt-4 d-flex flex-column align-items-center">
+            <h2>All Students</h2>
+
+            <div class="d-flex flex-column p-2 mt-3 justify-content-center align-items-center"
+                style="border: 1px rgb(238, 206, 206) solid; border-radius: 5px; background-color: white;">
+                <div class="pt-2" style="overflow-x: scroll;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Roll no.</th>
+                                <th scope="col">Student Name</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Add to Course</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentlist">
+                            <!-- Students will be populated here dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="Coursesbox d-flex p-2 mt-3"
+                style="flex-direction: column; background-color: rgb(255, 255, 255); border: 2px rgb(229, 190, 190) solid; border-radius: 5px;">
+                <h2>Show Students of Selected Course</h2>
+                <div class="d-flex p-2 mb-3 justify-content-center align-items-center"
+                    style="border: 1px rgb(238, 206, 206) solid; border-radius: 5px;">
+                    <span class="p-2" style="flex-wrap: wrap;">Select Course: </span>
+                    <div class="form-group">
+                        <select id="courseselect" class="form-select" aria-label="Default select example">
+                            <option selected disabled>Select Course</option>
+                            <!-- Course options will be populated here dynamically -->
+                        </select>
+                        <button id="show-students-btn" class="btn" onclick="showStudents()">Show Students</button>
+                    </div>
+                </div>
+                <br><br>
+                <div class="d-flex flex-column p-2 mt-3 justify-content-center align-items-center"
+                    style="border: 1px rgb(238, 206, 206) solid; border-radius: 5px; background-color: white;">
+                    <div class="pt-2" style="overflow-x: scroll;">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Roll no.</th>
+                                    <th scope="col">Student Name</th>
+                                    <th scope="col">Email</th>
+                                    <th scope="col">Course</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentlist1">
+                                <!-- Students with course will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function fetchStudents() {
+            try {
+                const response = await fetch('http://localhost:3000/all-student/show-students');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                console.log('Students:', data.rows);
+                updateStudentList(data.rows);
+            } catch (error) {
+                console.error('Error fetching students:', error);
+            }
+        }
+
+        function updateStudentList(students) {
+            const studentList = document.getElementById('studentlist');
+            studentList.innerHTML = ''; 
+            
+            students.forEach(student => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${student.roll_number}</td>
+                    <td>${student.student_name}</td>
+                    <td>${student.email}</td>
+                    <td>
+                        <select class="course-select">
+                            <option selected disabled>Select Course</option>
+                        </select>
+                    </td>
+                    <td><button class="add-course-btn">Add</button></td>
+                `;
+                studentList.appendChild(row);
+
+                const select = row.querySelector('.course-select');
+                const addButton = row.querySelector('.add-course-btn');
+
+                // Fetch courses and populate the select options
+                fetchCourses().then(courses => {
+                    courses.forEach(course => {
+                        const option = document.createElement('option');
+                        option.textContent = course.course_name;
+                        option.value = course.course_id;
+                        select.appendChild(option);
+                    });
+                });
+
+                addButton.addEventListener('click', async () => {
+                    const courseId = select.value;
+                    const studentId = student.student_id; // Replace with actual student ID from your data
+                    if (courseId && studentId) {
+                        try {
+                            const response = await fetch(`http://localhost:3000/all-student/add-course/${studentId}/${courseId}`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({})
+                            });
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! status: ${response.status}`);
+                            }
+                            console.log(`Course added successfully to student ${studentId}`);
+                            alert('Course added successfully'); 
+                            fetchStudents(); 
+                        } catch (error) {
+                            console.error('Error adding course:', error);
+                        }
+                    } else {
+                        console.error('Invalid course ID or student ID');
+                    }
+                });
+            });
+        }
+
+        async function fetchCourses() {
+            try {
+                const response = await fetch('http://localhost:3000/all-student/get-courses');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                console.log('Courses:', data.rows);
+                return data.rows;
+            } catch (error) {
+                console.error('Error fetching courses:', error);
+                return [];
+            }
+        }
+
+        async function showStudents() {
+            const courseId = document.getElementById('courseselect').value;
+            if (!courseId) {
+                console.error('Please select a course');
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:3000/all-student/show-students/${courseId}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                console.log(`Students for course ${courseId}:`, data);
+                updateStudentList1(data);
+            } catch (error) {
+                console.error(`Error fetching students for course ${courseId}:`, error);
+            }
+        }
+
+        function updateStudentList1(students) {
+            const studentList = document.querySelector('#studentlist1');
+            studentList.innerHTML = '';
+            console.log(studentList);
+
+            console.log("students ", students);
+
+            for (let index = 0; index < students.students.length; index++) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <tr>
+                        <td>${students.students[index].roll_number}</td>
+                        <td>${students.students[index].student_name}</td>
+                        <td>${students.students[index].email}</td>
+                        <td>${students.students[index].course_name}</td>
+                    </tr>
+                `;
+                
+                studentList.appendChild(row);
+            }
+        }
+
+        fetchCourses().then(courses => {
+            const globalSelect = document.getElementById('courseselect');
+            courses.forEach(course => {
+                const option = document.createElement('option');
+                option.textContent = course.course_name;
+                option.value = course.course_id;
+                globalSelect.appendChild(option);
+            });
+        });
+
+        fetchStudents();
+    </script>
+</body>
+</html>

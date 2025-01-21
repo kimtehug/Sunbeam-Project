@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 8px;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .button {
+      background-color: #4CAF50; /* Green */
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+    }
+
+    .edit {
+      background-color: #008CBA; /* Blue */
+    }
+  </style>
+</head>
+<body>
+
+<center><h2>Course DAC</h2></center>
+
+<h3>Students without Groups</h3>
+<table id="studentsWithoutGroups">
+  <tr>
+    <th>Roll Number</th>
+    <th>Student Name</th>
+    <th>Email</th>
+    <th>Group Name</th>
+    <th>Actions</th>
+  </tr>
+</table>
+
+<h3>Students with Groups</h3>
+<table id="studentsWithGroups">
+  <tr>
+    <th>Roll Number</th>
+    <th>Student Name</th>
+    <th>Email</th>
+    <th>Group Name</th>
+    <th>Actions</th>
+  </tr>
+</table>
+
+<script>
+async function fetchStudents() {
+  try {
+    const withoutGroupsResponse = await fetch('http://localhost:3000/course-dac/students-without-groups');
+    const withoutGroupsData = await withoutGroupsResponse.json();
+
+    const withGroupsResponse = await fetch('http://localhost:3000/course-dac/students-with-groups');
+    const withGroupsData = await withGroupsResponse.json();
+
+    populateTable('studentsWithoutGroups', withoutGroupsData.data, true);
+    populateTable('studentsWithGroups', withGroupsData.data, false);
+  } catch (error) {
+    console.error('Error fetching student data:', error);
+  }
+}
+
+function populateTable(tableId, data, isWithoutGroups) {
+  const table = document.getElementById(tableId);
+  data.forEach((student, index) => {
+    const row = document.createElement('tr');
+    row.id = `row${tableId}${index}`;
+    row.innerHTML = `
+      <td class="editable" data-field="rollNumber">${student.roll_number}</td>
+      <td class="editable" data-field="name">${student.student_name}</td>
+      <td class="editable" data-field="email">${student.email}</td>
+      <td class="editable" data-field="groupName">${isWithoutGroups ? `<select id="groupSelect${tableId}${index}"><option value="">-</option><option value="first_group">first_group</option><option value="second_group">second_group</option><option value="chemistry">chemistry</option><option value="Group A">Group A</option></select>` : student.group_name}</td>
+      <td>
+        <button class="button edit" onclick="editStudent('${tableId}', ${index})">Edit</button>
+        <button class="button save" onclick="saveStudent('${tableId}', ${index})">Save</button>
+      </td>
+    `;
+    table.appendChild(row);
+  });
+}
+
+function editStudent(tableId, index) {
+  const row = document.getElementById(`row${tableId}${index}`);
+  const cells = row.querySelectorAll('.editable');
+  cells.forEach(cell => {
+    const field = cell.getAttribute('data-field');
+    let value = cell.textContent;
+
+    if (field === 'groupName' && tableId === 'studentsWithoutGroups') {
+      const selectElement = document.getElementById(`groupSelect${tableId}${index}`);
+      value = selectElement.options[selectElement.selectedIndex].text;
+      cell.innerHTML = `<select id="input${tableId}${index}${field}"><option value="">-</option>
+        <option value="first_group">first_group</option>
+        <option value="second_group">second_group</option>
+        <option value="chemistry">chemistry</option>
+        <option value="Group A">Group A</option>
+      </select>`;
+      document.getElementById(`input${tableId}${index}${field}`).value = value;
+    } else {
+      cell.innerHTML = `<input type="text" id="input${tableId}${index}${field}" value="${value}">`;
+    }
+  });
+}
+
+async function saveStudent(tableId, index) {
+  const row = document.getElementById(`row${tableId}${index}`);
+  const rollNumberInput = document.getElementById(`input${tableId}${index}rollNumber`);
+  const nameInput = document.getElementById(`input${tableId}${index}name`);
+  const emailInput = document.getElementById(`input${tableId}${index}email`);
+  const groupNameSelect = document.getElementById(`input${tableId}${index}groupName`);
+
+  const rollNumber = rollNumberInput ? rollNumberInput.value : row.querySelector('[data-field="rollNumber"]').textContent;
+  const studentName = nameInput ? nameInput.value : row.querySelector('[data-field="name"]').textContent;
+  const email = emailInput ? emailInput.value : row.querySelector('[data-field="email"]').textContent;
+  const groupName = groupNameSelect ? groupNameSelect.value : row.querySelector('[data-field="groupName"]').textContent;
+
+  const data = { roll_number: rollNumber, student_name: studentName, email: email, group_name: groupName };
+  console.log(data);
+  try {
+    const response = await fetch('http://localhost:3000/course-dac/save-student-group', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+
+    const result = await response.json();
+    console.log(result);
+    if (result.status === 'success') {
+      alert('Student group assignment saved successfully');
+
+      // Remove row from studentsWithoutGroups table
+      row.remove();
+
+      // Add row to studentsWithGroups table
+      const withGroupsTable = document.getElementById('studentsWithGroups');
+      const newRow = document.createElement('tr');
+      newRow.innerHTML = `
+        <td class="editable" data-field="rollNumber">${rollNumber}</td>
+        <td class="editable" data-field="name">${studentName}</td>
+        <td class="editable" data-field="email">${email}</td>
+        <td class="editable" data-field="groupName">${groupName}</td>
+        <td>
+          <button class="button edit" onclick="editStudent('studentsWithGroups', ${index})">Edit</button>
+          <button class="button save" onclick="saveStudent('studentsWithGroups', ${index})">Save</button>
+        </td>
+      `;
+      withGroupsTable.appendChild(newRow);
+    } else {
+      console.log('Server response:', result); // Log server response for debugging
+      alert(`Error saving student group assignment: ${result.error}`);
+    }
+  } catch (error) {
+    console.error('Error saving student group assignment:', error);
+    alert('Error saving student group assignment');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', fetchStudents);
+</script>
+
+</body>
+</html>
